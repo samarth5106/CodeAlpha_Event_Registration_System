@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GatherUp | Event Registration System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8 flex flex-col items-center">
+
+    <header class="max-w-4xl w-full text-center my-6 space-y-2">
+        <h1 class="text-4xl font-black tracking-tight text-emerald-400">GatherUp</h1>
+        <p class="text-slate-400 text-sm">Enterprise Event Booking & Reservation Dashboard</p>
+        
+        <div class="flex justify-center gap-4 pt-4">
+            <button id="tabUser" class="px-5 py-2 font-bold text-sm text-emerald-400 border-b-2 border-emerald-400 cursor-pointer focus:outline-none transition">
+                📅 Attendee Board (User)
+            </button>
+            <button id="tabAdminTrigger" class="px-5 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 cursor-pointer focus:outline-none transition">
+                🔒 System Admin Portal
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-4xl w-full grid grid-cols-1 gap-8">
+
+        <section id="userSection" class="space-y-6">
+            <h2 class="text-xl font-bold text-slate-200">Available Events</h2>
+            <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <p class="text-slate-500 col-span-full text-center py-8">Fetching live events from the database...</p>
+            </div>
+        </section>
+
+        <section id="adminSection" class="hidden bg-slate-800 rounded-2xl border border-slate-700 p-6 shadow-xl max-w-xl mx-auto w-full space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-indigo-400">Create New Event</h2>
+                    <p class="text-xs text-slate-400 mt-1">Deploy a new event instantly onto the platform matrix</p>
+                </div>
+                <button id="lockAdminBtn" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs px-3 py-1.5 rounded-lg border border-red-500/20 transition cursor-pointer">
+                    Logout Session
+                </button>
+            </div>
+
+            <form id="createEventForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Event Title</label>
+                    <input type="text" id="eventTitle" placeholder="e.g., National Full-Stack Hackathon" required
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Description</label>
+                    <textarea id="eventDescription" rows="3" placeholder="Provide a brief breakdown of rules..." required
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"></textarea>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Date & Time</label>
+                        <input type="datetime-local" id="eventDate" required
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Max Attendee Capacity</label>
+                        <input type="number" id="eventCapacity" placeholder="e.g., 50" min="1" required
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Venue / Location</label>
+                    <input type="text" id="eventLocation" placeholder="e.g., Tech Auditorium, Campus Block A" required
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                </div>
+                <button type="submit" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-lg py-3 transition cursor-pointer">
+                    Publish Event
+                </button>
+            </form>
+        </section>
+
+    </main>
+
+    <div id="authModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl text-center">
+            <div class="mx-auto w-12 h-12 bg-indigo-500/10 rounded-full flex items-center justify-center text-indigo-400 text-xl">🔒</div>
+            <div>
+                <h3 class="text-xl font-bold text-indigo-400">Admin Authorization</h3>
+                <p class="text-xs text-slate-400 mt-1">Enter security credentials to open administrative nodes</p>
+            </div>
+            <form id="authForm" class="space-y-3">
+                <input type="password" id="adminPasscode" placeholder="Enter Admin Passcode" required
+                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-center text-slate-200 tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                <div class="flex gap-2">
+                    <button type="button" id="closeAuthModalBtn" class="flex-1 bg-slate-700 hover:bg-slate-600 text-xs py-2 rounded-lg transition cursor-pointer">Cancel</button>
+                    <button type="submit" class="flex-1 bg-indigo-500 hover:bg-indigo-600 text-slate-900 text-xs font-bold py-2 rounded-lg transition cursor-pointer">Unlock Portal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="registerModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div>
+                <h3 class="text-xl font-bold text-emerald-400" id="modalEventTitle">Register Seat</h3>
+                <p class="text-xs text-slate-400 mt-1">Provide your identity tokens to lock in your booking</p>
+            </div>
+            <form id="modalRegisterForm" class="space-y-4">
+                <input type="hidden" id="modalEventId">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Full Name</label>
+                    <input type="text" id="userName" placeholder="Your Name" required
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Email Address</label>
+                    <input type="email" id="userEmail" placeholder="yourname@gmail.com" required
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" id="closeModalBtn" class="flex-1 bg-slate-700 hover:bg-slate-600 font-medium py-2.5 rounded-lg transition cursor-pointer">Cancel</button>
+                    <button type="submit" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 rounded-lg transition cursor-pointer">Confirm Registration</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // DOM Architecture
+        const tabUser = document.getElementById('tabUser');
+        const tabAdminTrigger = document.getElementById('tabAdminTrigger');
+        const userSection = document.getElementById('userSection');
+        const adminSection = document.getElementById('adminSection');
+        const eventsGrid = document.getElementById('eventsGrid');
+        const createEventForm = document.getElementById('createEventForm');
+        const lockAdminBtn = document.getElementById('lockAdminBtn');
+        
+        // Security DOM
+        const authModal = document.getElementById('authModal');
+        const authForm = document.getElementById('authForm');
+        const adminPasscode = document.getElementById('adminPasscode');
+        const closeAuthModalBtn = document.getElementById('closeAuthModalBtn');
+
+        // Modal DOM Elements
+        const registerModal = document.getElementById('registerModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalEventTitle = document.getElementById('modalEventTitle');
+        const modalEventId = document.getElementById('modalEventId');
+        const modalRegisterForm = document.getElementById('modalRegisterForm');
+
+        // Local variable to track successful authorization state
+        let isAdminAuthenticated = false;
+        const SECRET_PASSCODE = "Admin@123"; // 💡 Your system's access passcode
+
+        // Tab Switches Controls
+        tabUser.addEventListener('click', () => {
+            userSection.classList.remove('hidden');
+            adminSection.classList.add('hidden');
+            tabUser.className = "px-5 py-2 font-bold text-sm text-emerald-400 border-b-2 border-emerald-400 cursor-pointer focus:outline-none transition";
+            tabAdminTrigger.className = `px-5 py-2 font-bold text-sm ${isAdminAuthenticated ? 'text-indigo-400' : 'text-slate-400'} border-b-2 border-transparent hover:text-slate-200 cursor-pointer focus:outline-none transition`;
+            loadAllEvents();
+        });
+
+        tabAdminTrigger.addEventListener('click', () => {
+            if (isAdminAuthenticated) {
+                // If already logged in, show panel directly
+                adminSection.classList.remove('hidden');
+                userSection.classList.add('hidden');
+                tabAdminTrigger.className = "px-5 py-2 font-bold text-sm text-indigo-400 border-b-2 border-indigo-400 cursor-pointer focus:outline-none transition";
+                tabUser.className = "px-5 py-2 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-200 cursor-pointer focus:outline-none transition";
+            } else {
+                // Intercept and open security guard modal window
+                authModal.classList.remove('hidden');
+                adminPasscode.focus();
+            }
+        });
+
+        // Passcode Submission Handler
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (adminPasscode.value === SECRET_PASSCODE) {
+                isAdminAuthenticated = true;
+                authModal.classList.add('hidden');
+                authForm.reset();
+                tabAdminTrigger.click(); // Execute regular tab transition behavior
+            } else {
+                alert('Invalid Security Passcode Node Access Denied.');
+                adminPasscode.select();
+            }
+        });
+
+        closeAuthModalBtn.addEventListener('click', () => {
+            authModal.classList.add('hidden');
+            authForm.reset();
+        });
+
+        lockAdminBtn.addEventListener('click', () => {
+            isAdminAuthenticated = false;
+            alert('Admin Session cleared safely.');
+            tabUser.click();
+        });
+
+        // Load Events from Backend (GET /api/events)
+        async function loadAllEvents() {
+            try {
+                const response = await fetch('/api/events');
+                const events = await response.json();
+                
+                if(events.length === 0) {
+                    eventsGrid.innerHTML = `<p class="text-slate-500 text-center col-span-full py-8">No events active right now. Switch to Admin view to create one!</p>`;
+                    return;
+                }
+
+                eventsGrid.innerHTML = '';
+                events.forEach(event => {
+                    const eventDate = new Date(event.date).toLocaleString();
+                    const filledSeats = event.registeredUsers.length;
+                    const isFull = filledSeats >= event.maxCapacity;
+
+                    const eventCard = `
+                        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 flex flex-col justify-between shadow-lg hover:border-slate-600 transition">
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-start gap-2">
+                                    <h3 class="text-xl font-bold text-slate-100">${event.title}</h3>
+                                    <span class="text-xs px-2.5 py-1 font-semibold tracking-wide uppercase rounded-full ${isFull ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">
+                                        ${isFull ? 'Sold Out' : 'Open'}
+                                    </span>
+                                </div>
+                                <p class="text-sm text-slate-400 line-clamp-3">${event.description}</p>
+                                <div class="text-xs text-slate-400 space-y-1 pt-2">
+                                    <p>📍 <span class="font-medium text-slate-300">${event.location}</span></p>
+                                    <p>📅 <span class="font-medium text-slate-300">${eventDate}</span></p>
+                                </div>
+                            </div>
+
+                            <div class="mt-5 pt-3 border-t border-slate-700/50 flex items-center justify-between">
+                                <div class="text-xs text-slate-400">
+                                    Capacity: <span class="text-sm font-bold ${isFull ? 'text-red-400' : 'text-slate-200'}">${filledSeats}</span> / ${event.maxCapacity} seats
+                                </div>
+                                <button onclick="openRegistrationModal('${event._id}', '${event.title.replace(/'/g, "\\'")}')" 
+                                    ${isFull ? 'disabled' : ''} 
+                                    class="px-4 py-2 text-xs font-bold rounded-lg transition cursor-pointer ${isFull ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : 'bg-emerald-500 hover:bg-emerald-600 text-slate-900'}">
+                                    ${isFull ? 'Filled' : 'Book Seat'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    eventsGrid.innerHTML += eventCard;
+                });
+            } catch (err) {
+                eventsGrid.innerHTML = `<p class="text-red-400 text-center col-span-full">Failed to communicate with the core event network API.</p>`;
+            }
+        }
+
+        // Admin: Create Event (POST /api/events)
+        createEventForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                title: document.getElementById('eventTitle').value,
+                description: document.getElementById('eventDescription').value,
+                date: document.getElementById('eventDate').value,
+                maxCapacity: document.getElementById('eventCapacity').value,
+                location: document.getElementById('eventLocation').value
+            };
+
+            try {
+                const response = await fetch('/api/events', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+
+                if(response.ok) {
+                    alert('Event successfully written to cloud schema node!');
+                    createEventForm.reset();
+                    tabUser.click(); 
+                } else {
+                    alert('Server rejected creation: ' + data.error);
+                }
+            } catch(err) {
+                alert('Connection failure trying to deploy event.');
+            }
+        });
+
+        // Modal Window Controls
+        window.openRegistrationModal = (id, title) => {
+            modalEventId.value = id;
+            modalEventTitle.textContent = `Register for: ${title}`;
+            registerModal.classList.remove('hidden');
+        };
+
+        closeModalBtn.addEventListener('click', () => {
+            registerModal.classList.add('hidden');
+            modalRegisterForm.reset();
+        });
+
+        // User: Submit Registration (POST /api/events/register)
+        modalRegisterForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                eventId: modalEventId.value,
+                name: document.getElementById('userName').value,
+                email: document.getElementById('userEmail').value
+            };
+
+            try {
+                const response = await fetch('/api/events/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Success! Your reservation record has been authorized.');
+                    closeModalBtn.click();
+                    loadAllEvents(); 
+                } else {
+                    alert('Registration Denied: ' + data.error);
+                }
+            } catch (err) {
+                alert('Network layer failure handling reservation transaction.');
+            }
+        });
+
+        loadAllEvents();
+    </script>
+</body>
+</html>
