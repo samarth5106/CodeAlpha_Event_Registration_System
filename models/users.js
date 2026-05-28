@@ -16,7 +16,7 @@ const UserSchema=new mongoose.Schema({
         },
         
         myRegistrations:[{
-            type: mongoose.Schema.Types.ObjectsId,
+            type: mongoose.Schema.Types.ObjectId,
             ref:'events',
 
         }]
@@ -24,5 +24,5 @@ const UserSchema=new mongoose.Schema({
 },
 {timestamps: true});
 
-const User=mongoose.model('user',userSchema);
+const User=mongoose.model('user',UserSchema);
 module.exports=User;

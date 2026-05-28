@@ -1,5 +1,5 @@
-const Event = require('../models/event');
-const User = require('../models/user');
+const Event = require('../models/events');
+const User = require('../models/users');
 
 // 1. Create a New Event (Already written)
 async function handleCreateNewEvent(req, res) {

@@ -29,7 +29,7 @@ const eventSchema=new mongoose.Schema({
 
     },
     registeredUsers:[{
-        type:mongoose.Schema.Types.ObjectsId,
+        type:mongoose.Schema.Types.ObjectId,
         ref:'user',
     }],
 
